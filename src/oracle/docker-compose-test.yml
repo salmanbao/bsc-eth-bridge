@@ -1,0 +1,130 @@
+version: '3.7'
+services:
+  proxy:
+    image: blockchain-proxy
+    build:
+      dockerfile: proxy/Dockerfile
+      context: .
+    environment:
+      - HOME_RPC_URL
+      - HOME_BRIDGE_ADDRESS
+      - HOME_TOKEN_ADDRESS
+      - SIDE_RPC_URL
+      - SIDE_SHARED_DB_ADDRESS
+      - VALIDATOR_PRIVATE_KEY
+      - FOREIGN_URL
+      - FOREIGN_ASSET
+      - LOG_LEVEL
+      - 'GAS_LIMIT_FACTOR=3'
+      - 'MAX_GAS_LIMIT=6000000'
+    ports:
+      - '${VOTES_PROXY_PORT}:8002'
+    networks:
+      test_network:
+        aliases:
+          - local_proxy
+      ethereum_home_rpc_net:
+      ethereum_side_rpc_net:
+      binance_net:
+  keygen:
+    image: keygen-client
+    build:
+      dockerfile: tss-keygen/Dockerfile
+      context: .
+    environment:
+      - 'RABBITMQ_URL=amqp://rabbitmq:5672'
+      - 'PROXY_URL=http://local_proxy:8001'
+      - KEYGEN_ATTEMPT_TIMEOUT
+      - KEYGEN_EPOCH_CHECK_INTERVAL
+      - LOG_LEVEL
+    volumes:
+      - '${PWD}/${TARGET_NETWORK}/keys:/keys'
+    ports:
+      - '${KEYGEN_RESTART_PORT}:8001'
+    networks:
+      - test_network
+  signer:
+    image: sign-client
+    build:
+      dockerfile: tss-sign/Dockerfile
+      context: .
+    environment:
+      - 'RABBITMQ_URL=amqp://rabbitmq:5672'
+      - 'PROXY_URL=http://local_proxy:8001'
+      - FOREIGN_CHAIN_ID
+      - FOREIGN_URL
+      - FOREIGN_ASSET
+      - SIGN_ATTEMPT_TIMEOUT
+      - SIGN_NONCE_CHECK_INTERVAL
+      - SEND_TIMEOUT
+      - LOG_LEVEL
+    volumes:
+      - '${PWD}/${TARGET_NETWORK}/keys:/keys'
+    ports:
+      - '${SIGN_RESTART_PORT}:8001'
+    networks:
+      - test_network
+      - binance_net
+  redis:
+    image: redis
+    build:
+      dockerfile: redis/Dockerfile
+      context: .
+    volumes:
+      - '${PWD}/${TARGET_NETWORK}/db:/data'
+    networks:
+      - test_network
+  rabbitmq:
+    hostname: rabbit
+    image: rabbitmq:3.7.15-alpine
+    environment:
+      RABBITMQ_LOGS: 'false'
+    volumes:
+      - '${PWD}/queue:/var/lib/rabbitmq/mnesia'
+    networks:
+      - test_network
+  eth-watcher:
+    build:
+      dockerfile: ethWatcher/Dockerfile
+      context: .
+    image: eth-watcher
+    environment:
+      - HOME_RPC_URL
+      - HOME_BRIDGE_ADDRESS
+      - HOME_TOKEN_ADDRESS
+      - HOME_START_BLOCK
+      - BLOCKS_RANGE_SIZE
+      - VALIDATOR_PRIVATE_KEY
+      - HOME_MAX_FETCH_RANGE_SIZE
+      - 'RABBITMQ_URL=amqp://rabbitmq:5672'
+      - LOG_LEVEL
+    networks:
+      - test_network
+      - ethereum_home_rpc_net
+  bnc-watcher:
+    build:
+      dockerfile: bncWatcher/Dockerfile
+      context: .
+    image: bnc-watcher
+    environment:
+      - FOREIGN_URL
+      - FOREIGN_ASSET
+      - 'RABBITMQ_URL=amqp://rabbitmq:5672'
+      - 'PROXY_URL=http://local_proxy:8001'
+      - FOREIGN_FETCH_MAX_TIME_INTERVAL
+      - FOREIGN_FETCH_INTERVAL
+      - FOREIGN_FETCH_BLOCK_TIME_OFFSET
+      - LOG_LEVEL
+    volumes:
+      - '${PWD}/${TARGET_NETWORK}/keys:/keys'
+    networks:
+      - test_network
+      - binance_net
+networks:
+  test_network:
+  ethereum_side_rpc_net:
+    external: true
+  ethereum_home_rpc_net:
+    external: true
+  binance_net:
+    external: true

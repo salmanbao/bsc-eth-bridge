@@ -1,0 +1,13 @@
+.idea/
+node_modules/
+.DS_Store
+data/
+demo/validator*/development
+demo/validator*/staging
+demo/validator*/.keys.staging
+src/deploy/deploy*/build/
+src/deploy/.keys.staging
+src/test-services/.keys.staging
+src/test.js
+tests/results.xml
+package-lock.json

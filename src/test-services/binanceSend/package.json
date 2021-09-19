@@ -1,0 +1,10 @@
+{
+  "name": "binance-send",
+  "version": "0.0.1",
+  "dependencies": {
+    "@binance-chain/javascript-sdk": "2.14.4"
+  },
+  "engines": {
+    "node": ">=10.6.0"
+  }
+}

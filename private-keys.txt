@@ -1,0 +1,55 @@
+f35a63746cba7b0b7d63dce73783743ea07c1eae35652e78268936d39a9fc8de
+    Eth address: 0x9aC04DaAAc57fc0d75e517345843a22BC1a8223f
+    Bnc address: tbnb174ggh00yhzcxkk3h9arhk4v98k0kq8ryhk4qae
+
+a13319c4d4c4fe64ddbb9c61b3746e316eddd1920359f79703a060c9ede8f457
+    Eth address: 0x96cE3F28F06107E56b9E32Bfb084508bA8dd5939
+    Bnc address: tbnb15wdf4yyu4neegdp3xa036k4wkvyhlnusakklaq
+
+
+0b8926ebda163518127e6559268e90b17f7a485aa2767a648cb2030d05108b43
+    Eth address: 0x3d0F6ad64Ca3AD5Cd81cEDcD92fAFC93c6fB5401
+    Bnc address: tbnb13j3acwy392qw7s98gpf2w474cfaz3etsj7p4nn
+
+bd85d131f500793544d55ff7274ae4df647b93ebf26abc03a47e7a33264ff258
+    Eth address: 0x3Ea92Af9cd8b85095ec4013a2d3604e050b3CdF0
+    Bnc address: tbnb1phxe5tplrnmdrk3u8zm8wz8u9lq67gjntn0m3u
+
+./src/test-services/getAddresses/run.sh f35a63746cba7b0b7d63dce73783743ea07c1eae35652e78268936d39a9fc8de
+./src/test-services/getAddresses/run.sh a13319c4d4c4fe64ddbb9c61b3746e316eddd1920359f79703a060c9ede8f457
+./src/test-services/getAddresses/run.sh 0b8926ebda163518127e6559268e90b17f7a485aa2767a648cb2030d05108b43
+./src/test-services/getAddresses/run.sh bd85d131f500793544d55ff7274ae4df647b93ebf26abc03a47e7a33264ff258
+
+
+Token contract address = 0xd5fE0D28e058D375b0b038fFbB446Da37E85fFdc
+Bridge contract address = 0x44c158FE850821ae69DaF37AADF5c539e9d0025B
+Database contract address = 0xd5fE0D28e058D375b0b038fFbB446Da37E85fFdc
+
+
+./src/test-services/ethereumSend/run.sh 0x9aC04DaAAc57fc0d75e517345843a22BC1a8223f 5 0.5
+
+./src/test-services/ethereumBalance/run.sh 0x9aC04DaAAc57fc0d75e517345843a22BC1a8223f
+
+
+sudo rm -rf .validator/* && sudo rm -rf .validator1/* && sudo rm -rf .validator2/* && sudo rm -rf .validator3/*
+
+Generated multisig account in binance chain: tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27
+
+# Fill the balance Fund with BNB coins as so the account will be able to make transactions:
+./src/test-services/binanceSend/run.sh tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27  100 1
+
+#To check the balance of the bridge account use 
+./src/test-services/binanceBalance/run.sh tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27
+
+#Transfer tokens from Ethereum-based chain to the Binance Chain
+#Send some amount of tokens to the bridge contract, for PRIVATE_KEY use some of the keys from step
+PRIVATE_KEY=f35a63746cba7b0b7d63dce73783743ea07c1eae35652e78268936d39a9fc8de ./src/test-services/ethereumSend/run.sh bridge 5
+
+#The validators will catch the event and start the process to sign the transaction.
+# As soon as the signature is generated and sent, the balance of the bridge account in both chains will be changed:
+./src/test-services/ethereumBalance/run.sh 0x44c158FE850821ae69DaF37AADF5c539e9d0025B
+
+#should report non-zero balance,
+./src/test-services/binanceBalance/run.sh tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27
+
+./src/test-services/ethereumBalance/run.sh tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27
