@@ -43,6 +43,7 @@ async function main() {
     receipt = await client.transfer(from, to, tokens, FOREIGN_ASSET, '')
   }
 
+  console.log("Receipt =>",receipt);
   if (receipt.status === 200) {
     console.log(receipt.result[0].hash)
   } else {

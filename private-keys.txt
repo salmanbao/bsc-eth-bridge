@@ -20,26 +20,37 @@ bd85d131f500793544d55ff7274ae4df647b93ebf26abc03a47e7a33264ff258
 ./src/test-services/getAddresses/run.sh 0b8926ebda163518127e6559268e90b17f7a485aa2767a648cb2030d05108b43
 ./src/test-services/getAddresses/run.sh bd85d131f500793544d55ff7274ae4df647b93ebf26abc03a47e7a33264ff258
 
+#Run Ethereum testnets and deploy contracts
+TARGET_NETWORK=development ./demo/start-ethereum-environment.sh
 
 Token contract address = 0xd5fE0D28e058D375b0b038fFbB446Da37E85fFdc
 Bridge contract address = 0x44c158FE850821ae69DaF37AADF5c539e9d0025B
 Database contract address = 0xd5fE0D28e058D375b0b038fFbB446Da37E85fFdc
 
+#Run Binance testnet and api services
+./demo/start-binance-environment.sh
 
+#Send few tokens and coins from the current token owner to the first account. Coins are needed to pay transaction fees.
 ./src/test-services/ethereumSend/run.sh 0x9aC04DaAAc57fc0d75e517345843a22BC1a8223f 5 0.5
 
+#Check that the tokens were transferred properly
 ./src/test-services/ethereumBalance/run.sh 0x9aC04DaAAc57fc0d75e517345843a22BC1a8223f
 
+#Run three validators in separate terminal sessions.
+N=1 ./demo/validator-demo.sh
+N=2 ./demo/validator-demo.sh
+N=3 ./demo/validator-demo.sh
 
-sudo rm -rf .validator/* && sudo rm -rf .validator1/* && sudo rm -rf .validator2/* && sudo rm -rf .validator3/*
 
-Generated multisig account in binance chain: tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27
+sudo rm -rf ./validator/* && sudo rm -rf ./validator1/* && sudo rm -rf ./validator2/* && sudo rm -rf ./validator3/*
+
+# Generated multisig account in binance chain: tbnb16wkgswrjfjd8vf3y3h9u4sfyg0kd34q5an9tcs
 
 # Fill the balance Fund with BNB coins as so the account will be able to make transactions:
-./src/test-services/binanceSend/run.sh tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27  100 1
+./src/test-services/binanceSend/run.sh tbnb16wkgswrjfjd8vf3y3h9u4sfyg0kd34q5an9tcs  100 1
 
 #To check the balance of the bridge account use 
-./src/test-services/binanceBalance/run.sh tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27
+./src/test-services/binanceBalance/run.sh tbnb16wkgswrjfjd8vf3y3h9u4sfyg0kd34q5an9tcs
 
 #Transfer tokens from Ethereum-based chain to the Binance Chain
 #Send some amount of tokens to the bridge contract, for PRIVATE_KEY use some of the keys from step
@@ -50,6 +61,21 @@ PRIVATE_KEY=f35a63746cba7b0b7d63dce73783743ea07c1eae35652e78268936d39a9fc8de ./s
 ./src/test-services/ethereumBalance/run.sh 0x44c158FE850821ae69DaF37AADF5c539e9d0025B
 
 #should report non-zero balance,
-./src/test-services/binanceBalance/run.sh tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27
+./src/test-services/binanceBalance/run.sh tbnb16wkgswrjfjd8vf3y3h9u4sfyg0kd34q5an9tcs
 
-./src/test-services/ethereumBalance/run.sh tbnb100l2jhkhwfxx4tz0txrttu3xndadhgdtdcmj27
+#Transfer tokens from the Binance Chain to Ethereum-based chain:
+#Send some amount of tokens to the bridge account
+PRIVATE_KEY=f35a63746cba7b0b7d63dce73783743ea07c1eae35652e78268936d39a9fc8de ./src/test-services/binanceSend/run.sh tbnb16wkgswrjfjd8vf3y3h9u4sfyg0kd34q5an9tcs 3
+
+
+
+
+FOR TESTING WITH testnets
+# test_account1
+differ valley cliff whale heavy video grocery host nerve anger noodle deny
+
+#test_account2
+day purse uniform mix thumb lawn magic reward reject truck weird bleak paper route index increase regret endorse reduce tissue cigar maximum chaos lemon
+
+#test_account3
+tackle surge frequent menu belt caution slice strike crash manage author crunch grace hair border sunset announce organ process time legal need toward token
