@@ -23,7 +23,7 @@ function main() {
   const ethAddress = utils.computeAddress(privateKey)
   const publicKey = utils.computePublicKey(privateKey, true)
 
-  console.log(`Eth address: ${ethAddress}\nBnc address: ${publicKeyToAddress(publicKey)}`)
+  console.log(`Eth address: ${ethAddress}\nBsc address: ${ethAddress}\nBnc address: ${publicKeyToAddress(publicKey)}`)
 }
 
 main()
