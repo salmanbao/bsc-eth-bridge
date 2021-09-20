@@ -1,0 +1,2 @@
+cargo:rustc-env=TYPENUM_BUILD_OP=/home/salman/Development/Bridge/eth-to-bnc-bridge/src/tss/multi-party-ecdsa/target/release/build/typenum-2787a044f55293ac/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/home/salman/Development/Bridge/eth-to-bnc-bridge/src/tss/multi-party-ecdsa/target/release/build/typenum-2787a044f55293ac/out/op.rs
