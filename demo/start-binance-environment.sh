@@ -4,9 +4,9 @@ set -e
 
 cd $(dirname "$0")
 
-tbnbcli() {
-    echo 12345678 | docker exec -i binance-testnet_node_1 ./tbnbcli $@ --from node0 --node http://node:26657 --chain-id Binance-Dev --json
-}
+# tbnbcli() {
+#     echo 12345678 | docker exec -i binance-testnet_node_1 ./tbnbcli $@ --from node0 --node http://node:26657 --chain-id Binance-Dev --json
+# }
 
 if [[ "$(docker volume ls | grep binance_data)" ]]; then
     echo "Restarting binance test network"

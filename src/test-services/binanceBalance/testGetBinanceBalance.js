@@ -1,19 +1,17 @@
-const axios = require('axios')
+const ethers = require("ethers");
+const { FOREIGN_URL, FOREIGN_ASSET } = process.env;
 
-const { FOREIGN_URL, FOREIGN_ASSET } = process.env
+const tokenAbi = ["function balanceOf(address) view returns (uint)"];
 
-const address = process.argv[2]
-const httpClient = axios.create({ baseURL: FOREIGN_URL })
+const provider = new ethers.providers.JsonRpcProvider(FOREIGN_URL);
+const token = new ethers.Contract(FOREIGN_ASSET, tokenAbi, provider);
+const address = process.argv[2];
 
-function main() {
-  httpClient
-    .get(`/api/v1/account/${address}`)
-    .then((res) => {
-      console.log(res.data)
-      console.log(`BNB: ${parseFloat(res.data.balances.find((token) => token.symbol === 'BNB').free)}`)
-      console.log(`${FOREIGN_ASSET}: ${parseFloat(res.data.balances.find((token) => token.symbol === FOREIGN_ASSET).free)}`)
-    })
-    .catch(console.log)
+async function main() {
+  console.log({
+    bnb: ethers.utils.formatEther(await provider.getBalance(address)),
+    token: ethers.utils.formatEther(await token.balanceOf(address)),
+  });
 }
 
-main()
+main();

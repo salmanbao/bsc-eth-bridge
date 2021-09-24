@@ -106,26 +106,26 @@ services:
     networks:
       - rabbit-ethwatcher-net
       - redis-ethwatcher-net
-  bnc-watcher:
-    build:
-      dockerfile: bncWatcher
-      context: .
-    image: bnc-watcher
-    environment:
-      - FOREIGN_URL
-      - FOREIGN_ASSET
-      - 'RABBITMQ_URL=amqp://rabbitmq:5672'
-      - 'PROXY_URL=http://proxy:8001'
-      - FOREIGN_FETCH_MAX_TIME_INTERVAL
-      - FOREIGN_FETCH_INTERVAL
-      - FOREIGN_FETCH_BLOCK_TIME_OFFSET
-      - LOG_LEVEL
-    volumes:
-      - '${PWD}/${TARGET_NETWORK}/keys:/keys'
-    networks:
-      - rabbit-bncwatcher-net
-      - redis-bncwatcher-net
-      - bncwatcher-proxy-net
+  # bnc-watcher:
+  #   build:
+  #     dockerfile: bncWatcher
+  #     context: .
+  #   image: bnc-watcher
+  #   environment:
+  #     - FOREIGN_URL
+  #     - FOREIGN_ASSET
+  #     - 'RABBITMQ_URL=amqp://rabbitmq:5672'
+  #     - 'PROXY_URL=http://proxy:8001'
+  #     - FOREIGN_FETCH_MAX_TIME_INTERVAL
+  #     - FOREIGN_FETCH_INTERVAL
+  #     - FOREIGN_FETCH_BLOCK_TIME_OFFSET
+  #     - LOG_LEVEL
+  #   volumes:
+  #     - '${PWD}/${TARGET_NETWORK}/keys:/keys'
+  #   networks:
+  #     - rabbit-bncwatcher-net
+  #     - redis-bncwatcher-net
+  #     - bncwatcher-proxy-net
 networks:
   sign-proxy-net:
   keygen-proxy-net:

@@ -10,6 +10,9 @@ import "../../access/roles/MinterRole.sol";
  * At construction, the deployer of the contract is the only minter.
  */
 contract ERC20Mintable is ERC20, MinterRole {
+
+    string public name = "Bridge Token";
+    string public symbol = "BRT";
     /**
      * @dev See `ERC20._mint`.
      *

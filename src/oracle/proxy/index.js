@@ -45,7 +45,7 @@ const sharedDb = new ethers.Contract(SIDE_SHARED_DB_ADDRESS, sharedDbAbi, sideWa
 
 const validatorAddress = homeWallet.address
 
-const httpClient = axios.create({ baseURL: FOREIGN_URL })
+// const httpClient = axios.create({ baseURL: FOREIGN_URL })
 
 const lock = new AsyncLock()
 
@@ -405,15 +405,17 @@ async function transfer(req, res) {
   logger.info('Transfer end')
 }
 
-function getForeignBalances(address) {
-  return httpClient
-    .get(`/api/v1/account/${address}`)
-    .then((res) => res.data.balances.reduce((prev, cur) => {
-      // eslint-disable-next-line no-param-reassign
-      prev[cur.symbol] = cur.free
-      return prev
-    }, {}))
-    .catch(() => ({}))
+async function getForeignBalances(address) {
+
+  return await sideProvider.eth.getBalance(address);
+  // return httpClient
+  //   .get(`/api/v1/account/${address}`)
+  //   .then((res) => res.data.balances.reduce((prev, cur) => {
+  //     // eslint-disable-next-line no-param-reassign
+  //     prev[cur.symbol] = cur.free
+  //     return prev
+  //   }, {}))
+  //   .catch(() => ({}))
 }
 
 async function info(req, res) {
@@ -480,7 +482,6 @@ async function info(req, res) {
 }
 
 app.get('/status', status)
-
 app.post('/get', get)
 app.post('/set', set)
 app.post('/signupkeygen', signupKeygen)

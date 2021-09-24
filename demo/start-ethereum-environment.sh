@@ -21,7 +21,7 @@ deploy_token() {
 
   echo "Building deploy docker image"
   docker build -t deploy_test "$DEPLOY_DIR/deploy-test" > /dev/null 2>&1
-
+  echo "Token image has been built"
   echo "Deploying"
   if [[ "$TARGET_NETWORK" == "development" ]]; then
     TOKEN_ADDRESS=$(docker run --network "$HOME_NETWORK" --rm -v "$DEPLOY_DIR/deploy-test/build:/build/build" --env-file "$DEPLOY_DIR/deploy-test/.env.development" \
@@ -42,6 +42,8 @@ deploy_bridge() {
   echo "Compiling and deploying home part"
 
   echo "Building deploy docker image"
+  echo "Running command"
+  echo docker build -t deploy_home "$DEPLOY_DIR/deploy-home"
   docker build -t deploy_home "$DEPLOY_DIR/deploy-home" > /dev/null 2>&1
 
   echo "Deploying"
@@ -52,12 +54,14 @@ deploy_bridge() {
     | grep "contract address" \
     | awk '{print $4}')
   else
+    echo "Deployment in staging mode"
     BRIDGE_ADDRESS=$(docker run --rm -v "$DEPLOY_DIR/deploy-home/build:/build/build" --env-file "$DEPLOY_DIR/deploy-home/.env.staging" --env-file "$DEPLOY_DIR/.keys.staging" \
     deploy_home \
     --network home 2>&1 \
     | grep "contract address" \
     | awk '{print $4}')
   fi
+  
 }
 
 deploy_db() {
@@ -84,14 +88,20 @@ deploy_db() {
 
 deploy_all() {
   TOKEN_ADDRESS=$(source "$DEPLOY_DIR/deploy-home/.env.$TARGET_NETWORK"; echo "$HOME_TOKEN_ADDRESS")
-
+  BRIDGE_ADDRESS=$(source "$DEMO_DIR/validator1/.env.$TARGET_NETWORK"; echo "$HOME_BRIDGE_ADDRESS")
+  SHARED_DB_ADDRESS=$(source "$DEMO_DIR/validator1/.env.$TARGET_NETWORK"; echo "$SIDE_SHARED_DB_ADDRESS")
   if [[ "$TARGET_NETWORK" == "development" ]] || [[ "$TOKEN_ADDRESS" == "0x" ]]; then
     deploy_token
     sed -i 's/TOKEN_ADDRESS=0x$/TOKEN_ADDRESS='"$TOKEN_ADDRESS"'/' "$DEPLOY_DIR/deploy-home/.env.$TARGET_NETWORK"
   fi
 
+  if [[ "$TARGET_NETWORK" == "staging" ]] && [[  "$BRIDGE_ADDRESS" == "0x"  ]]; then
   deploy_bridge
+  fi
+
+  if [[ "$TARGET_NETWORK" == "staging" ]] && [[  "$SHARED_DB_ADDRESS" == "0x"  ]]; then
   deploy_db
+  fi
 
   echo "Token contract address in $TARGET_NETWORK network is $TOKEN_ADDRESS"
   echo "Bridge contract address in $TARGET_NETWORK network is $BRIDGE_ADDRESS"

@@ -1,49 +1,45 @@
-const Bnc = require('@binance-chain/javascript-sdk')
+const ethers = require('ethers')
 
 const { FOREIGN_URL, FOREIGN_ASSET, FOREIGN_PRIVATE_KEY } = process.env
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || FOREIGN_PRIVATE_KEY
 
-const client = new Bnc(FOREIGN_URL)
+
+const tokenAbi = [
+  'function transfer(address to, uint256 value)',
+  'function approve(address to, uint256 value)'
+]
+
+
+const provider = new ethers.providers.JsonRpcProvider(FOREIGN_URL)
+const wallet = new ethers.Wallet(PRIVATE_KEY, provider)
+const token = new ethers.Contract(FOREIGN_ASSET, tokenAbi, wallet)
+
 
 async function main() {
-  client.chooseNetwork('testnet')
-  await client.setPrivateKey(PRIVATE_KEY)
-
-  await client.initChain()
-
-  const from = client.getClientKeyAddress()
   const to = process.argv[2]
   const tokens = parseFloat(process.argv[3])
-  let bnbs = process.argv[4]
+  let bnbs = process.argv[4] || 0
   let receipt
+
 
   if (bnbs) {
     bnbs = parseFloat(bnbs)
-    console.log(`Funding from ${from} to ${to}, ${tokens} ${FOREIGN_ASSET}, ${bnbs} BNB'`)
-    const outputs = [{
+    console.log(`Funding from ${wallet.address} to ${to}, ${tokens} Tokens, ${bnbs} BNB'`)
+
+    const tx = await wallet.sendTransaction({
       to,
-      coins: []
-    }]
-    if (tokens) {
-      outputs[0].coins.push({
-        denom: FOREIGN_ASSET,
-        amount: tokens
-      })
-    }
-    if (bnbs) {
-      outputs[0].coins.push({
-        denom: 'BNB',
-        amount: bnbs
-      })
-    }
-    receipt = await client.multiSend(from, outputs, 'funding')
+      value: ethers.utils.parseEther(bnbs.toString())
+    })
+
+    receipt = await tx.wait()
+    
   } else {
-    console.log(`From ${from} to ${to}, ${tokens} ${FOREIGN_ASSET}'`)
-    receipt = await client.transfer(from, to, tokens, FOREIGN_ASSET, '')
+    console.log(`From ${wallet.address} to ${to}, ${tokens} Tokens'`)
+    const tx = await token.transfer(to, ethers.utils.parseEther(tokens.toString()))
+    receipt = await tx.wait()
   }
 
-  console.log("Receipt =>",receipt);
   if (receipt.status === 200) {
     console.log(receipt.result[0].hash)
   } else {

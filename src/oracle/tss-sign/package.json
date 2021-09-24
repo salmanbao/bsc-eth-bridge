@@ -7,8 +7,10 @@
     "axios": "0.19.0",
     "bignumber.js": "9.0.0",
     "express": "4.17.1",
+    "ethers": "4.0.33",
     "pino": "5.13.4",
-    "pino-pretty": "3.2.1"
+    "pino-pretty": "3.2.1",
+    "ethereum-public-key-to-address":"*"
   },
   "engines": {
     "node": ">=10.6.0"
