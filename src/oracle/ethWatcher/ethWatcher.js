@@ -59,8 +59,12 @@ let lastTransactionBlockNumber;
 let isCurrentValidator;
 let activeEpoch;
 
-async function getBlockTimestamp(n) {
+async function getBlockTimestamp() {
   return (await provider.getBlock(n, false)).timestamp;
+}
+
+async function getBlock() {
+    return (await provider.getBlock("latest", false)).number;
 }
 
 async function resetFutureMessages(queue) {
@@ -311,7 +315,7 @@ async function initialize() {
 }
 
 async function loop() {
-  const latestBlockNumber = await provider.getBlockNumber();
+  const latestBlockNumber = (await retry(() => getBlock()));
   if (latestBlockNumber < blockNumber) {
     logger.debug(`No block after ${latestBlockNumber}`);
     await delay(2000);
@@ -449,17 +453,25 @@ async function loop() {
   }
 
   blockNumber = endBlock + 1;
-  // Exec redis tx
+
   await redisTx.set("homeBlock", endBlock).exec();
   await redis.save();
 }
 
 async function main() {
-  await initialize();
+  try {
+    await initialize();
 
-  while (true) {
-    await loop();
+    while (true) {
+      await loop();
+    }
+  } catch (error) {
+    console.log(error);
   }
 }
 
 main();
+
+process.on('unhandledRejection', error => {
+  console.log('unhandledRejection', error);
+})

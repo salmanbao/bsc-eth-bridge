@@ -12,3 +12,4 @@ src/deploy/deploy*/build/
 src/test.js
 tests/results.xml
 package-lock.json
+SpookBridging.pem

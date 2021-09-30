@@ -62,10 +62,8 @@ async function createSender(url, privateKey) {
         MAX_GAS_LIMIT
       );
       newTx.gasLimit = `0x${new BN(gasLimit).toString(16)}`
-      console.log((await provider.getBlock("latest", false)).gasLimit.toString())
       logger.trace(`Estimated gas to ${gasLimit}`);
 
-      console.log(newTx);
       const signedTx = await wallet.sign(newTx);
 
       const { result, error } = await sendRpcRequest(

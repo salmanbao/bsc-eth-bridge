@@ -12,6 +12,7 @@ const tokenAbi = [
 
 
 const provider = new ethers.providers.JsonRpcProvider(FOREIGN_URL)
+
 const wallet = new ethers.Wallet(PRIVATE_KEY, provider)
 const token = new ethers.Contract(FOREIGN_ASSET, tokenAbi, wallet)
 
@@ -36,8 +37,12 @@ async function main() {
     
   } else {
     console.log(`From ${wallet.address} to ${to}, ${tokens} Tokens'`)
-    const tx = await token.transfer(to, ethers.utils.parseEther(tokens.toString()))
-    receipt = await tx.wait()
+    try {
+      const tx = await token.transfer(to, ethers.utils.parseEther(tokens.toString()))
+      receipt = await tx.wait()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   if (receipt.status === 200) {

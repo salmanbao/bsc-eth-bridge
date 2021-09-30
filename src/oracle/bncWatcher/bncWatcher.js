@@ -3,8 +3,7 @@ const BN = require("bignumber.js");
 const fs = require("fs");
 const { computeAddress } = require("ethers").utils;
 
-const ethers = require('ethers')
-
+const ethers = require("ethers");
 
 const logger = require("./logger");
 const redis = require("./db");
@@ -12,7 +11,8 @@ const { publicKeyToAddress } = require("./crypto");
 const { delay, retry } = require("./wait");
 const { connectRabbit, assertQueue } = require("./amqp");
 
-const { PROXY_URL,SIDE_MAX_FETCH_RANGE_SIZE, FOREIGN_URL, RABBITMQ_URL } = process.env;
+const { PROXY_URL, SIDE_MAX_FETCH_RANGE_SIZE, FOREIGN_URL, RABBITMQ_URL } =
+  process.env;
 
 const FOREIGN_FETCH_INTERVAL = parseInt(process.env.FOREIGN_FETCH_INTERVAL, 10);
 const FOREIGN_FETCH_BLOCK_TIME_OFFSET = parseInt(
@@ -49,11 +49,11 @@ async function getTx(hash) {
 }
 
 async function getBlockTime() {
-  return (await provider.getBlock("latest", false)).timestamp;
+    return (await provider.getBlock("latest", false)).timestamp;
 }
 
 async function getBlock() {
-  return (await provider.getBlock("latest", false)).number;
+    return (await provider.getBlock("latest",false)).number
 }
 
 async function fetchNewTransactions(address, startBlock, endBlock) {
@@ -62,18 +62,18 @@ async function fetchNewTransactions(address, startBlock, endBlock) {
     address,
     topics: [],
     fromBlock: startBlock,
-    toBlock: endBlock
+    toBlock: endBlock,
   };
 
   logger.trace("Transactions fetch params %o", params);
-  return (await provider.getPastLogs(params));
+  return await provider.getPastLogs(params);
 }
 
 async function fetchTimeIntervalsQueue() {
   let epoch = null;
   let startTime = null;
   let endTime = null;
-  const lastBscBlockTime = await getBlockTime();
+  const lastBscBlockTime =  (await retry(() => getBlockTime())) ;
   logger.trace(`Binance last block timestamp ${lastBscBlockTime}`);
   while (true) {
     const msg = await epochTimeIntervalsQueue.get();
@@ -124,25 +124,29 @@ async function fetchTimeIntervalsQueue() {
     epoch,
     startTime,
     endTime,
-    startBlock:await getBlock(),
-    endBlock:Math.min(await getBlock(), lastBlockNumber + SIDE_MAX_FETCH_RANGE_SIZE - 1)
+    startBlock: (await retry(() => getBlock())),
+    endBlock: Math.min(
+      (await retry(() => getBlock())),
+      lastBlockNumber + SIDE_MAX_FETCH_RANGE_SIZE - 1
+    ),
   };
 }
 
 async function initialize() {
-  logger.info
+  logger.info;
   channel = await connectRabbit(RABBITMQ_URL);
   logger.info("Connecting to epoch time intervals queue");
   epochTimeIntervalsQueue = await assertQueue(
     channel,
     "epochTimeIntervalsQueue"
   );
-  blockNumber = await getBlock();
-  logger.debug("blockNumber",blockNumber)
+  blockNumber = (await retry(() => getBlock()));
+  logger.debug("blockNumber", blockNumber);
 }
 
 async function loop() {
-  const { epoch, startTime, endTime,startBlock,endBlock } = await fetchTimeIntervalsQueue();
+  const { epoch, startTime, endTime, startBlock, endBlock } =
+    await fetchTimeIntervalsQueue();
 
   if (!startTime || !endTime) {
     logger.debug("Nothing to fetch");
@@ -156,7 +160,7 @@ async function loop() {
     return;
   }
 
-  logger.debug(`Watching events in blocks #${startBlock}-${endBlock}`)
+  logger.debug(`Watching events in blocks #${startBlock}-${endBlock}`);
 
   const address = getForeignAddress(epoch); // TODO
 
@@ -167,7 +171,11 @@ async function loop() {
     return;
   }
 
-  const transactions = await fetchNewTransactions(address, startBlock, endBlock);
+  const transactions = await fetchNewTransactions(
+    address,
+    startBlock,
+    endBlock
+  );
 
   if (transactions.length === 0) {
     logger.debug("Found 0 new transactions");
@@ -180,7 +188,7 @@ async function loop() {
   logger.trace("%o", transactions);
 
   for (let i = transactions.length - 1; i >= 0; i -= 1) {
-    const tx = getTx(transactions[i].transactionHash)
+    const tx = (await retry(() => getTx(transactions[i].transactionHash)));
     logger.debug("Transaction :", tx);
 
     await proxyHttpClient.post("/transfer", {
@@ -194,11 +202,22 @@ async function loop() {
 }
 
 async function main() {
-  await initialize();
+  try {
+    await initialize();
 
   while (true) {
     await loop();
+  }  
+  } catch (error) {
+    console.log("main-Error");
+   console.log(error) 
   }
+  
 }
 
 main();
+
+
+process.on('unhandledRejection', error => {
+  console.log('unhandledRejection', error);
+})
