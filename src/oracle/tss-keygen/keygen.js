@@ -110,6 +110,7 @@ async function keygenConsumer(msg) {
 
     if (keygenResult === KEYGEN_OK) {
       const publicKey = JSON.parse(fs.readFileSync(keysFile))[5]
+      console.log(publicKey)
       logger.warn(`Generated multisig account in binance chain: ${publicKeyToAddress(publicKey)}`)
 
       logger.info('Sending keys confirmation')

@@ -8,6 +8,8 @@ contract Bridge is MessageHandler {
 
     mapping(bytes32 => bool) usedExchangeRanges;
 
+    function() external payable { }
+
     constructor(
         uint16 threshold,
         address[] memory validators,

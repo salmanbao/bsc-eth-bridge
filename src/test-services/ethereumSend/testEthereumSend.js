@@ -35,6 +35,7 @@ async function main() {
     console.log(`txHash approve: ${receiptApprove.transactionHash}`)
 
     const txExchange = await bridge.exchange(ethers.utils.parseEther(amount))
+    console.log(txExchange)
     const receiptExchange = await txExchange.wait()
     console.log(`txHash exchange: ${receiptExchange.transactionHash}`)
   } else if (amount !== '0') {
@@ -44,9 +45,9 @@ async function main() {
     const receipt = await tx.wait()
     console.log(`txHash transfer: ${receipt.transactionHash}`)
   }
-
-  if (native) {
-    console.log(`Transfer from ${sender} to ${to}, ${native} coins`)
+  console.log("Ethereum => ",native);
+  if (native !== '0') {
+    console.log(`Transfer from ${sender} to ${to}, ${native} ETH`)
 
     const tx = await wallet.sendTransaction({
       to,

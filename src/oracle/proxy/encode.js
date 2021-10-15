@@ -130,7 +130,6 @@ function encode(isKeygen, round, value) {
   const buffers = []
   let next = generator.next()
   while (!next.done) {
-    console.log("next.value",next.value)
     buffers.push(next.value)
     next = generator.next()
   }

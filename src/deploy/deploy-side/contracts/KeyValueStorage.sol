@@ -3,6 +3,8 @@ pragma solidity ^0.5.0;
 contract KeyValueStorage {
     mapping(bytes32 => bytes) public db;
 
+    function() external payable { }
+
     function setData(bytes32 id, bytes32 key, bytes memory data) public {
         db[encodeKey(msg.sender, id, key)] = data;
     }

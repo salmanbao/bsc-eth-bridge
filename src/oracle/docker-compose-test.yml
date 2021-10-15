@@ -16,7 +16,7 @@ services:
       - FOREIGN_ASSET
       - LOG_LEVEL
       - 'GAS_LIMIT_FACTOR=3'
-      - 'MAX_GAS_LIMIT=6000000'
+      - 'MAX_GAS_LIMIT=30000000'
     ports:
       - '${VOTES_PROXY_PORT}:8002'
     networks:

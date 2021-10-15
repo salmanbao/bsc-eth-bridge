@@ -6,7 +6,9 @@ module.exports = {
   networks: {
     side: {
       provider: new PrivateKeyProvider(SIDE_PRIVATE_KEY, SIDE_RPC_URL),
-      network_id: '*'
+      network_id: '*', 
+      timeoutBlocks:400,
+      skipDryRun:false
     }
   },
   compilers: {
@@ -15,7 +17,7 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 3
+          runs: 200
         }
       }
     }

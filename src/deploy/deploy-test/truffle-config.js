@@ -6,7 +6,9 @@ module.exports = {
   networks: {
     home: {
       provider: new PrivateKeyProvider(HOME_PRIVATE_KEY, HOME_RPC_URL),
-      network_id: '*'
+      network_id: '*',
+      timeoutBlocks:400,
+      skipDryRun:false
     }
   },
   compilers: {
@@ -15,7 +17,7 @@ module.exports = {
       settings: {
         optimizer: {
           enabled: true,
-          runs: 3
+          runs: 200
         }
       }
     }
